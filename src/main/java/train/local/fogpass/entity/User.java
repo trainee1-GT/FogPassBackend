@@ -34,7 +34,7 @@ public class User {
     @Column(name = "Dept", length = 100)
     private String department;
 
-    @Column(name = "BOD", length = 20)
+    @Column(name = "DOB", length = 20)
     private String dateOfBirth;
 
 
