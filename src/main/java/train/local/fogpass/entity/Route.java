@@ -1,29 +1,46 @@
 package train.local.fogpass.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-/**
- * A minimal Route entity that creates a database table
- * named 'route' with only a primary key column.
- */
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "route") // Specifies the table name as 'route'
+@Table(name = "routes", indexes = {
+        @Index(name = "idx_routes_section_id", columnList = "section_id")
+})
 public class Route {
 
-    @Id // Marks this field as the primary key.
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Configures auto-generation for the ID.
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- Getters and Setters ---
-    public Long getId() {
-        return id;
-    }
+    @Column(nullable = false)
+    private String routeCode;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(nullable = false)
+    private String name;
+
+    private String direction;
+
+    @Column(columnDefinition = "json")
+    private String optimalProfileData; // JSON as string
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "section_id")
+    private Section section;
+
+    @OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
+    private Set<Landmark> landmarks = new HashSet<>();
+
+    @OneToMany(mappedBy = "route", fetch = FetchType.LAZY)
+    private Set<Journey> journeys = new HashSet<>();
 }

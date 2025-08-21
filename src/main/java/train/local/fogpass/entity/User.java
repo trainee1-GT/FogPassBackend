@@ -1,39 +1,47 @@
 package train.local.fogpass.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "userlogin")
+@Table(name = "users", indexes = {
+        @Index(name = "idx_users_username", columnList = "username", unique = true)
+})
 public class User {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, length = 255)
-    private String password;
+    @Column(nullable = false)
+    private String passwordHash;
 
-    public String getUsername() {
-        return username;
-    }
+    private String fullName;
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    private String locoPilotId;
 
-    public String getPassword() {
-        return password;
-    }
+    // Inverse side of one-to-one
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private UserSettings userSettings;
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+    // Inverse side of user-access-scopes
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<UserAccessScope> accessScopes = new HashSet<>();
 
-
+    // Inverse side of journeys
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<Journey> journeys = new HashSet<>();
 }
