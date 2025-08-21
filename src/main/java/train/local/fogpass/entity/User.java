@@ -1,12 +1,14 @@
 package train.local.fogpass.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_users_username", columnList = "username", unique = true)
+        @Index(name = "idx_users_username", columnList = "username", unique = true),
+        @Index(name = "idx_users_emp_id", columnList = "empId", unique = true)
 })
 public class User {
 
@@ -14,45 +16,48 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Old fields
-    @Column(name = "User_Id", nullable = false, length = 50)
-    private String userId;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-    @Column(name = "User_Id", nullable = false, length = 50)
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, unique = true)
+    private String empId;
+
+    private LocalDate dateOfBirth;
+
+    private String designation;
+
+    private String department;
+
+    @Column(nullable = false)
+    private boolean active = true;
 
     private String locoPilotId;
 
-    @Column(name = "user_name", nullable = false, unique = true, length = 50)
-    private String username;
-
-
-    @Column(name = "user_pwd", nullable = false, unique = true, length = 50)
-    private String pwd;
-
-    @Column(name = "Des", length = 100)
-    private String des;
-
-    @Column(name = "Dept", length = 100)
-    private String dept;
-
-    @Column(name = "BOD", length = 20)
-    private String bod;
-
-
-
-    // Inverse side of one-to-one
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    // --- Relationships ---
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private UserSettings userSettings;
 
-    // Inverse side of user-access-scopes
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserAccessScope> accessScopes = new HashSet<>();
 
-    // Inverse side of journeys
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Journey> journeys = new HashSet<>();
 
-    // Getters and Setters
+    // --- Constructors ---
+
+    /**
+     * Default no-argument constructor required by JPA.
+     */
+    public User() {
+    }
+
+    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -60,14 +65,6 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public String getUsername() {
@@ -78,39 +75,61 @@ public class User {
         this.username = username;
     }
 
-    public String getPwd() {
-        return pwd;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public String getDes() {
-        return des;
+    public String getName() {
+        return name;
     }
 
-    public void setDes(String des) {
-        this.des = des;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDept() {
-        return dept;
+    public String getEmpId() {
+        return empId;
     }
 
-    public void setDept(String dept) {
-        this.dept = dept;
+    public void setEmpId(String empId) {
+        this.empId = empId;
     }
 
-    public String getBod() {
-        return bod;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setBod(String bod) {
-        this.bod = bod;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
+    public String getDesignation() {
+        return designation;
+    }
 
+    public void setDesignation(String designation) {
+        this.designation = designation;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public String getLocoPilotId() {
         return locoPilotId;

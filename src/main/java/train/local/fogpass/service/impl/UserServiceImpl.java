@@ -35,12 +35,16 @@ public class UserServiceImpl implements UserService {
         Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setUserId(userDetails.getUserId());
-            user.setUserName(userDetails.getUserName());
-            user.setPwd(userDetails.getPwd());
-            user.setDes(userDetails.getDes());
-            user.setDept(userDetails.getDept());
-            user.setBod(userDetails.getBod());
+            // Do not update primary key (id); it's determined by the path variable
+            user.setUsername(userDetails.getUsername());
+            user.setPassword(userDetails.getPassword());
+            user.setName(userDetails.getName());
+            user.setEmpId(userDetails.getEmpId());
+            user.setDesignation(userDetails.getDesignation());
+            user.setDepartment(userDetails.getDepartment());
+            user.setDateOfBirth(userDetails.getDateOfBirth());
+            user.setActive(userDetails.isActive());
+            user.setLocoPilotId(userDetails.getLocoPilotId());
             return userRepository.save(user);
         }
         return null; // or throw an exception
