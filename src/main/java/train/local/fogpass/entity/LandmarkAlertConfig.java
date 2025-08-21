@@ -6,24 +6,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "zones")
-public class Zone {
+@Table(name = "landmark_alert_config", indexes = {
+        @Index(name = "idx_lac_landmark_type", columnList = "landmarkType", unique = true)
+})
+public class LandmarkAlertConfig {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(nullable = false, unique = true)
+    private String landmarkType;
 
-    @OneToMany(mappedBy = "zone", fetch = FetchType.LAZY)
-    private Set<Division> divisions = new HashSet<>();
+    private String audioFileName;
 }
