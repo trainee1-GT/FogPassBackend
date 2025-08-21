@@ -1,63 +1,56 @@
 package train.local.fogpass.controller;
 
-import train.local.fogpass.entity.User;
-import train.local.fogpass.service.impl.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import train.local.fogpass.entity.User;
+import train.local.fogpass.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
+    @Autowired
+    private UserService userService;
 
-    private final UserServiceImpl userServiceImpl;
-
-    public UserController(UserServiceImpl userServiceImpl) {
-        this.userServiceImpl = userServiceImpl;
-    }
-
-    // CREATE
+    // Create User
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userServiceImpl.save(user));
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 
-    // READ ALL
+    // Get All Users
     @GetMapping
     public List<User> getAllUsers() {
-        return userServiceImpl.findAll();
+        return userService.getAllUsers();
     }
 
-    // READ by ID
-    @GetMapping("id/{id}")
+    // Get User by ID
+    @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userServiceImpl.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        Optional<User> user = userService.getUserById(id);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // UPDATE
-    @PutMapping("id/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
-        return userServiceImpl.findById(id)
-                .map(user -> {
-                    user.setUsername(updatedUser.getUsername());
-                    user.setPassword(updatedUser.getPassword());
-                    return ResponseEntity.ok(userServiceImpl.save(user));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // DELETE
-    @DeleteMapping("id/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        if (userServiceImpl.findById(id).isPresent()) {
-            userServiceImpl.deleteById(id);
-            return ResponseEntity.ok("User deleted successfully");
+    // Update User
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    // Delete User
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

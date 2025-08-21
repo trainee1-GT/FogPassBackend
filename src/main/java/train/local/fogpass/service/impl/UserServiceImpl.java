@@ -1,39 +1,55 @@
 package train.local.fogpass.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 import train.local.fogpass.entity.User;
 import train.local.fogpass.repository.UserRepository;
-
-
+import train.local.fogpass.service.UserService;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl {
+public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    public User save(User user) {
+    @Override
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 
-    public List<User> findAll() {
+    @Override
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<User> findById(Long id) {
+    @Override
+    public Optional<User> getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
+    @Override
+    public User updateUser(Long id, User userDetails) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setUserId(userDetails.getUserId());
+            user.setUserName(userDetails.getUserName());
+            user.setPwd(userDetails.getPwd());
+            user.setDes(userDetails.getDes());
+            user.setDept(userDetails.getDept());
+            user.setBod(userDetails.getBod());
+            return userRepository.save(user);
+        }
+        return null; // or throw an exception
+    }
+
+    @Override
+    public void deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+        }
     }
 }
