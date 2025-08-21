@@ -19,7 +19,6 @@ public class User {
     private String userId;
 
     @Column(name = "User_Id", nullable = false, length = 50)
-
     private String locoPilotId;
 
     @Column(name = "user_name", nullable = false, unique = true, length = 50)
@@ -27,16 +26,16 @@ public class User {
 
 
     @Column(name = "user_pwd", nullable = false, unique = true, length = 50)
-    private String pwd;
+    private String password;
 
     @Column(name = "Des", length = 100)
-    private String des;
+    private String designation;
 
     @Column(name = "Dept", length = 100)
-    private String dept;
+    private String department;
 
     @Column(name = "BOD", length = 20)
-    private String bod;
+    private String dateOfBirth;
 
 
 
@@ -79,35 +78,35 @@ public class User {
     }
 
     public String getPwd() {
-        return pwd;
+        return password;
     }
 
     public void setPwd(String pwd) {
-        this.pwd = pwd;
+        this.password = pwd;
     }
 
     public String getDes() {
-        return des;
+        return designation;
     }
 
     public void setDes(String des) {
-        this.des = des;
+        this.designation = des;
     }
 
     public String getDept() {
-        return dept;
+        return department;
     }
 
     public void setDept(String dept) {
-        this.dept = dept;
+        this.department = dept;
     }
 
     public String getBod() {
-        return bod;
+        return dateOfBirth;
     }
 
     public void setBod(String bod) {
-        this.bod = bod;
+        this.dateOfBirth = bod;
     }
 
 

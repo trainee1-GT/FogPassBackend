@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import train.local.fogpass.entity.enums.InitialModule;
 import train.local.fogpass.entity.enums.JourneyStatus;
+import train.local.fogpass.entity.logs.JourneyLog;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
