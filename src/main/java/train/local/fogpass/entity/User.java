@@ -19,31 +19,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-<<<<<<< HEAD
-    @Column(name = "User_Id", nullable = false, length = 50)
-    private String locoPilotId;
-
-    @Column(name = "user_name", nullable = false, unique = true, length = 50)
-    private String username;
-
-
-    @Column(name = "user_pwd", nullable = false, unique = true, length = 50)
-    private String password;
-
-    @Column(name = "Des", length = 100)
-    private String designation;
-
-    @Column(name = "Dept", length = 100)
-    private String department;
-
-    @Column(name = "DOB", length = 20)
-    private String dateOfBirth;
-
-
-
-    // Inverse side of one-to-one
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-=======
     @Column(nullable = false)
     private String password;
 
@@ -66,7 +41,6 @@ public class User {
 
     // --- Relationships ---
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
->>>>>>> kunal
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -101,38 +75,6 @@ public class User {
         this.username = username;
     }
 
-<<<<<<< HEAD
-    public String getPwd() {
-        return password;
-    }
-
-    public void setPwd(String pwd) {
-        this.password = pwd;
-    }
-
-    public String getDes() {
-        return designation;
-    }
-
-    public void setDes(String des) {
-        this.designation = des;
-    }
-
-    public String getDept() {
-        return department;
-    }
-
-    public void setDept(String dept) {
-        this.department = dept;
-    }
-
-    public String getBod() {
-        return dateOfBirth;
-    }
-
-    public void setBod(String bod) {
-        this.dateOfBirth = bod;
-=======
     public String getPassword() {
         return password;
     }
@@ -163,7 +105,6 @@ public class User {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
->>>>>>> kunal
     }
 
     public String getDesignation() {
