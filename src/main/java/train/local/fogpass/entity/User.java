@@ -6,38 +6,46 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users", indexes = {
-        @Index(name = "idx_users_username", columnList = "username", unique = true),
-        @Index(name = "idx_users_emp_id", columnList = "empId", unique = true)
-})
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_username", columnList = "username", unique = true),
+                @Index(name = "idx_users_emp_id", columnList = "user_id", unique = true)
+        }
+)
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true, length = 255)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "user_id", nullable = false, unique = true)
+    private Long userId;
 
-    @Column(nullable = false, unique = true)
-    private String empId;
+    @Column(name = "loco_pilot_id", length = 255)
+    private String locoPilotId;
 
+    @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
+    @Column(name = "designation", length = 255)
     private String designation;
 
+    @Column(name = "department", length = 255)
     private String department;
 
-    @Column(nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active = true;
 
-    private String locoPilotId;
+    @Column(name = "mob_no", length = 20)
+    private String mobNo;
 
     // --- Relationships ---
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -49,16 +57,7 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Journey> journeys = new HashSet<>();
 
-    // --- Constructors ---
-
-    /**
-     * Default no-argument constructor required by JPA.
-     */
-    public User() {
-    }
-
     // --- Getters and Setters ---
-
     public Long getId() {
         return id;
     }
@@ -83,20 +82,20 @@ public class User {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public String getEmpId() {
-        return empId;
+    public String getLocoPilotId() {
+        return locoPilotId;
     }
 
-    public void setEmpId(String empId) {
-        this.empId = empId;
+    public void setLocoPilotId(String locoPilotId) {
+        this.locoPilotId = locoPilotId;
     }
 
     public LocalDate getDateOfBirth() {
@@ -131,12 +130,12 @@ public class User {
         this.active = active;
     }
 
-    public String getLocoPilotId() {
-        return locoPilotId;
+    public String getMobNo() {
+        return mobNo;
     }
 
-    public void setLocoPilotId(String locoPilotId) {
-        this.locoPilotId = locoPilotId;
+    public void setMobNo(String mobNo) {
+        this.mobNo = mobNo;
     }
 
     public UserSettings getUserSettings() {
