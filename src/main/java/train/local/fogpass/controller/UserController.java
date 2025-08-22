@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.local.fogpass.entity.User;
-import train.local.fogpass.dto.response.UserDetailsResponse;
 import train.local.fogpass.service.UserService;
 
 import java.util.List;
@@ -18,23 +17,22 @@ public class UserController {
     private UserService userService;
 
     // Create User
-    @PostMapping("/createUser")
-    public ResponseEntity<UserDetailsResponse> createUser(@RequestBody User user) {
-        User saved = userService.saveUser(user);
-        return ResponseEntity.ok(UserDetailsResponse.from(saved));
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.saveUser(user));
     }
 
     // Get All Users
-    @GetMapping("/users")
+    @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
     // Get User by ID
     @GetMapping("/{id}")
-    public ResponseEntity<UserDetailsResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        return user.map(u -> ResponseEntity.ok(UserDetailsResponse.from(u)))
+        return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
