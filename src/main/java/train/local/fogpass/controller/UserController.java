@@ -33,7 +33,7 @@ public class UserController {
 
     // Get User by ID → GET /api/users/{id}
     // URI Template Variable: {id}
-    @GetMapping("/{id}")
+    @GetMapping("id/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
         Optional<User> user = userService.getUserById(id);
         return user.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
@@ -42,7 +42,7 @@ public class UserController {
 
     // Update User → PUT /api/users/{id}
     // URI Template Variable: {id}
-    @PutMapping("/{id}")
+    @PutMapping("id/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") Long id, @RequestBody User user) {
         User updatedUser = userService.updateUser(id, user);
         if (updatedUser != null) {
@@ -54,7 +54,7 @@ public class UserController {
 
     // Delete User → DELETE /api/users/{id}
     // URI Template Variable: {id}
-    @DeleteMapping("/{id}")
+    @DeleteMapping("id/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()) {

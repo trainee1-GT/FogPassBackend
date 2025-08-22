@@ -28,4 +28,5 @@ public class Role {
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     private Set<UserAccessScope> userAccessScopes = new HashSet<>();
+
 }
