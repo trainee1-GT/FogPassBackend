@@ -1,56 +1,64 @@
 package train.local.fogpass.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import train.local.fogpass.entity.User;
+import train.local.fogpass.dto.request.UserCreateRequest;
+import train.local.fogpass.dto.request.UserUpdateRequest;
+import train.local.fogpass.dto.response.ApiResponse;
+import train.local.fogpass.dto.response.UserResponse;
 import train.local.fogpass.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
+@PreAuthorize("hasAnyRole(T(train.local.fogpass.security.RoleConstants).ADMIN, T(train.local.fogpass.security.RoleConstants).SUPER_ADMIN)")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // Create User
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.saveUser(user));
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    // Get All Users
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    // Create User (public per SecurityConfig permitAll if needed)
+    @PostMapping("/createUser")
+    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse created = userService.createUser(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User created successfully", created));
     }
 
     // Get User by ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+        UserResponse user = userService.getUserById(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "User fetched successfully", user));
+    }
+
+    // Get All Users
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+        List<UserResponse> users = userService.getAllUsers();
+        return ResponseEntity.ok(new ApiResponse<>(true, "Users fetched successfully", users));
     }
 
     // Update User
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
-        if (updatedUser != null) {
-            return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserUpdateRequest request
+    ) {
+        return ResponseEntity.ok(new ApiResponse<>(true, "User updated successfully",
+                userService.updateUser(id, request)));
     }
 
-    // Delete User
+    // Delete User (SUPER_ADMIN only)
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    @PreAuthorize("hasRole(T(train.local.fogpass.security.RoleConstants).SUPER_ADMIN)")
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(new ApiResponse<>(true, "User deleted successfully", null));
     }
 }

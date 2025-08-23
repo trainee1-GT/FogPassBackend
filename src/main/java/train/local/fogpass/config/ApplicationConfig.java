@@ -1,3 +1,7 @@
 package train.local.fogpass.config;
 
-public class ApplicationConfig {}
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ApplicationConfig {
+}
