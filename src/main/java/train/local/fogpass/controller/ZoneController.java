@@ -26,7 +26,7 @@ public class ZoneController {
     }
 
     // GET zone by ID
-    @GetMapping("/{id}")
+    @GetMapping("id/{id}")
     public ResponseEntity<Zone> getById(@PathVariable("id") Long id) {
         return zoneService.getZoneById(id)
                 .map(ResponseEntity::ok)

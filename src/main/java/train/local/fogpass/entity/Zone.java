@@ -2,6 +2,7 @@ package train.local.fogpass.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Zone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "zone_id") // Explicit column name for clarity
+    @JsonAlias({"id", "zoneId"}) // accept both keys from JSON
     private Long zoneId;
 
     @Column(name = "zone_name", nullable = false)
