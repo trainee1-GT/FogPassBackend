@@ -1,5 +1,7 @@
 package train.local.fogpass.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,6 +30,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -88,6 +92,10 @@ public class UserServiceImpl implements UserService {
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + targetUserId));
 
+        // Audit logging - Log the update operation attempt
+        logger.info("Admin user {} attempting to update user with ID: {}", 
+                   adminPrincipal.getUsername(), targetUserId);
+
         boolean isSuperAdmin = adminPrincipal.getAuthorities()
                 .contains(new SimpleGrantedAuthority("ROLE_" + RoleConstants.SUPER_ADMIN));
         if (!isSuperAdmin) {
@@ -97,7 +105,9 @@ public class UserServiceImpl implements UserService {
         }
 
         if (updateRequest.getUsername() != null) targetUser.setUsername(updateRequest.getUsername());
-        if (updateRequest.getPassword() != null) targetUser.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().trim().isEmpty()) {
+            targetUser.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
+        }
         if (updateRequest.getUserId() != null) targetUser.setUserId(updateRequest.getUserId());
         if (updateRequest.getLocoPilotId() != null) targetUser.setLocoPilotId(updateRequest.getLocoPilotId());
         if (updateRequest.getDateOfBirth() != null) targetUser.setDateOfBirth(updateRequest.getDateOfBirth());
@@ -106,22 +116,36 @@ public class UserServiceImpl implements UserService {
         if (updateRequest.getActive() != null) targetUser.setActive(updateRequest.getActive());
         if (updateRequest.getMobNo() != null) targetUser.setMobNo(updateRequest.getMobNo());
 
-        if (updateRequest.getRoles() != null && !updateRequest.getRoles().isEmpty()) {
-            Set<UserAccessScope> newScopes = updateRequest.getRoles().stream().map(r -> {
-                Role role = roleRepository.findByName(r.getRoleName())
-                        .orElseThrow(() -> new BadRequestException("Role not found: " + r.getRoleName()));
-                UserAccessScope s = new UserAccessScope();
-                s.setUser(targetUser);
-                s.setRole(role);
-                s.setZoneId(r.getZoneId());
-                s.setDivisionId(r.getDivisionId());
-                s.setSectionId(r.getSectionId());
-                return s;
-            }).collect(Collectors.toSet());
-            targetUser.setAccessScopes(newScopes);
+        if (updateRequest.getRoles() != null) {
+            // Clear existing scopes to handle orphan removal properly
+            targetUser.getAccessScopes().clear();
+            
+            // If roles are provided (not empty), create new scopes
+            if (!updateRequest.getRoles().isEmpty()) {
+                Set<UserAccessScope> newScopes = updateRequest.getRoles().stream().map(r -> {
+                    Role role = roleRepository.findByName(r.getRoleName())
+                            .orElseThrow(() -> new BadRequestException("Role not found: " + r.getRoleName()));
+                    UserAccessScope s = new UserAccessScope();
+                    s.setUser(targetUser);
+                    s.setRole(role);
+                    s.setZoneId(r.getZoneId());
+                    s.setDivisionId(r.getDivisionId());
+                    s.setSectionId(r.getSectionId());
+                    return s;
+                }).collect(Collectors.toSet());
+                
+                // Add new scopes to the existing collection
+                targetUser.getAccessScopes().addAll(newScopes);
+            }
+            // If roles array is empty, scopes remain cleared (user has no roles)
         }
 
         User saved = userRepository.save(targetUser);
+        
+        // Audit logging - Log successful update
+        logger.info("Admin user {} successfully updated user with ID: {}. Target user: {}", 
+                   adminPrincipal.getUsername(), targetUserId, targetUser.getUsername());
+        
         return toResponse(saved);
     }
 
@@ -129,18 +153,20 @@ public class UserServiceImpl implements UserService {
         Set<UserPrincipal.ScopeView> adminScopes = admin.getAccessScopes();
         Set<UserAccessScope> targetUserScopes = targetUser.getAccessScopes();
 
-        if (adminScopes == null || targetUserScopes == null) return false;
+        if (adminScopes == null || targetUserScopes == null || adminScopes.isEmpty() || targetUserScopes.isEmpty()) {
+            return false;
+        }
 
         return adminScopes.stream().anyMatch(adminScope ->
                 targetUserScopes.stream().anyMatch(targetScope -> {
                     if (adminScope.getZoneId() != null && adminScope.getDivisionId() == null) {
-                        return Objects.equals(adminScope.getZoneId(), targetScope.getZoneId());
+                        return adminScope.getZoneId().equals(targetScope.getZoneId());
                     }
                     if (adminScope.getDivisionId() != null && adminScope.getSectionId() == null) {
-                        return Objects.equals(adminScope.getDivisionId(), targetScope.getDivisionId());
+                        return adminScope.getDivisionId().equals(targetScope.getDivisionId());
                     }
                     if (adminScope.getSectionId() != null) {
-                        return Objects.equals(adminScope.getSectionId(), targetScope.getSectionId());
+                        return adminScope.getSectionId().equals(targetScope.getSectionId());
                     }
                     return false;
                 })
@@ -159,6 +185,77 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResponse> getAllUsersForAdmin(UserPrincipal adminPrincipal) {
+        // Super Admin can see all users
+        if (adminPrincipal.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_SUPER_ADMIN"))) {
+            return getAllUsers();
+        }
+
+        // Get admin's access scopes
+        Set<UserPrincipal.ScopeView> adminScopes = adminPrincipal.getAccessScopes();
+        if (adminScopes == null || adminScopes.isEmpty()) {
+            // Admin with no scopes can see all users (global admin)
+            return getAllUsers();
+        }
+
+        // Filter users based on admin's scope
+        return userRepository.findAll().stream()
+                .filter(user -> isUserInAdminScope(user, adminScopes))
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    private boolean isUserInAdminScope(User user, Set<UserPrincipal.ScopeView> adminScopes) {
+        Set<UserAccessScope> userScopes = user.getAccessScopes();
+        
+        // If user has no scopes, only global admins (no scope restrictions) can see them
+        if (userScopes == null || userScopes.isEmpty()) {
+            return adminScopes.stream().anyMatch(adminScope -> 
+                adminScope.getZoneId() == null && 
+                adminScope.getDivisionId() == null && 
+                adminScope.getSectionId() == null
+            );
+        }
+
+        // Check if any of the user's scopes fall within admin's scope
+        return userScopes.stream().anyMatch(userScope -> 
+            adminScopes.stream().anyMatch(adminScope -> isScopeWithinAdminScope(userScope, adminScope))
+        );
+    }
+
+    private boolean isScopeWithinAdminScope(UserAccessScope userScope, UserPrincipal.ScopeView adminScope) {
+        // Admin with no zone restriction can see all users
+        if (adminScope.getZoneId() == null) {
+            return true;
+        }
+
+        // User must be in the same zone as admin
+        if (!Objects.equals(userScope.getZoneId(), adminScope.getZoneId())) {
+            return false;
+        }
+
+        // Admin with no division restriction can see all users in their zone
+        if (adminScope.getDivisionId() == null) {
+            return true;
+        }
+
+        // User must be in the same division as admin
+        if (!Objects.equals(userScope.getDivisionId(), adminScope.getDivisionId())) {
+            return false;
+        }
+
+        // Admin with no section restriction can see all users in their division
+        if (adminScope.getSectionId() == null) {
+            return true;
+        }
+
+        // User must be in the same section as admin
+        return Objects.equals(userScope.getSectionId(), adminScope.getSectionId());
     }
 
     @Override

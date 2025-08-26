@@ -15,15 +15,17 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "zones")
-public class Zone {
+public class Zone extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "zone", fetch = FetchType.LAZY)
+    @Column(length = 10)
+    private String code;
+
+    @Column(length = 500)
+    private String description;
+
+    @OneToMany(mappedBy = "zone", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Division> divisions = new HashSet<>();
 }

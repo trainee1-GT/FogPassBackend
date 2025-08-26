@@ -8,6 +8,8 @@ import train.local.fogpass.dto.request.UserCreateRequest;
 import train.local.fogpass.dto.request.UserUpdateRequest;
 import train.local.fogpass.dto.response.ApiResponse;
 import train.local.fogpass.dto.response.UserResponse;
+import train.local.fogpass.security.SecurityUtil;
+import train.local.fogpass.security.UserPrincipal;
 import train.local.fogpass.service.UserService;
 
 import java.util.List;
@@ -37,10 +39,12 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse<>(true, "User fetched successfully", user));
     }
 
-    // Get All Users
+    // Get All Users (scope-aware)
     @GetMapping("/getAllUsers")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
+        UserPrincipal currentUser = SecurityUtil.getCurrentUserPrincipal()
+                .orElseThrow(() -> new RuntimeException("User not authenticated"));
+        List<UserResponse> users = userService.getAllUsersForAdmin(currentUser);
         return ResponseEntity.ok(new ApiResponse<>(true, "Users fetched successfully", users));
     }
 

@@ -17,19 +17,21 @@ import java.util.Set;
 @Table(name = "divisions", indexes = {
         @Index(name = "idx_divisions_zone_id", columnList = "zone_id")
 })
-public class Division {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Division extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 10)
+    private String code;
+
+    @Column(length = 500)
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "zone_id")
+    @JoinColumn(name = "zone_id", nullable = false)
     private Zone zone;
 
-    @OneToMany(mappedBy = "division", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "division", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Section> sections = new HashSet<>();
 }
