@@ -43,9 +43,6 @@ public class UserController {
     }
 
 
-
-
-
     // Get User by ID
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {

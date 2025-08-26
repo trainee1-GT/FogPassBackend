@@ -10,7 +10,7 @@ import java.util.Set;
         name = "users",
         indexes = {
                 @Index(name = "idx_users_username", columnList = "username", unique = true),
-                @Index(name = "idx_users_emp_id", columnList = "user_id", unique = true)
+                @Index(name = "idx_users_emp_id", columnList = "emp_id", unique = true)
         }
 )
 public class User {
@@ -26,7 +26,7 @@ public class User {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "emp_id", nullable = false, unique = true)
     private Long userId;
 
     @Column(name = "loco_pilot_id", length = 255)
