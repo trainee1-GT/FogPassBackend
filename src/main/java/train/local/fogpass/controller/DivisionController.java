@@ -1,20 +1,22 @@
 package train.local.fogpass.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import train.local.fogpass.dto.request.DivisionRequest;
 import train.local.fogpass.entity.Division;
 import train.local.fogpass.entity.Zone;
+import train.local.fogpass.security.RoleConstants;
 import train.local.fogpass.service.DivisionService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping({"/divisions", "/api/divisions"})
+@PreAuthorize("hasRole(T(train.local.fogpass.security.RoleConstants).SUPER_ADMIN)")
 public class DivisionController {
 
     private final DivisionService divisionService;
@@ -23,33 +25,33 @@ public class DivisionController {
         this.divisionService = divisionService;
     }
 
-    // ✅ Get all divisions
+    // ✅ Get all divisions (SUPER_ADMIN only)
     @GetMapping
     public ResponseEntity<List<Division>> getAllDivisions() {
         return ResponseEntity.ok(divisionService.getAllDivisions());
     }
 
-    // ✅ Get all divisions under a zone
+    // ✅ Get all divisions under a zone (SUPER_ADMIN only)
     @GetMapping("/zone/{zoneId}")
     public ResponseEntity<List<Division>> getDivisionsByZone(@PathVariable Long zoneId) {
         return ResponseEntity.ok(divisionService.getDivisionsByZone(zoneId));
     }
 
-    // ✅ Create a single division
+    // ✅ Create a single division (SUPER_ADMIN only)
     @PostMapping
     public ResponseEntity<Division> createDivision(@Valid @RequestBody Division division) {
         Division savedDivision = divisionService.saveDivision(division);
         return new ResponseEntity<>(savedDivision, HttpStatus.CREATED); // 201 CREATED
     }
 
-    // ✅ Bulk insert divisions (all in one bunch)
+    // ✅ Bulk insert divisions (SUPER_ADMIN only)
     @PostMapping(value = "/bulk", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Division>> createDivisions(@Valid @RequestBody List<@Valid Division> divisions) {
         List<Division> savedDivisions = divisionService.saveAllDivisions(divisions);
         return new ResponseEntity<>(savedDivisions, HttpStatus.CREATED); // 201 CREATED
     }
 
-    // ✅ Bulk insert using flat DTO (name + zoneId)
+    // ✅ Bulk insert using flat DTO (SUPER_ADMIN only)
     @PostMapping(value = "/bulk-dto", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Division>> createDivisionsDto(@RequestBody List<DivisionRequest> requests) {
         List<Division> divisions = requests.stream().map(r -> {
@@ -64,7 +66,7 @@ public class DivisionController {
         return new ResponseEntity<>(savedDivisions, HttpStatus.CREATED);
     }
 
-    // ✅ Get a specific division by ID
+    // ✅ Get a specific division by ID (SUPER_ADMIN only)
     @GetMapping({"/{id}", "/id/{id}"})
     public ResponseEntity<Division> getDivisionById(@PathVariable Long id) {
         Division division = divisionService.getDivisionById(id);
@@ -75,7 +77,7 @@ public class DivisionController {
         }
     }
 
-    // ✅ Update an existing division
+    // ✅ Update an existing division (SUPER_ADMIN only)
     @PutMapping({"/{id}", "/id/{id}"})
     public ResponseEntity<Division> updateDivision(@PathVariable Long id, @Valid @RequestBody Division updatedDivision) {
         updatedDivision.setId(id);
@@ -83,7 +85,7 @@ public class DivisionController {
         return ResponseEntity.ok(savedDivision); // 200 OK
     }
 
-    // ✅ Delete a division
+    // ✅ Delete a division (SUPER_ADMIN only)
     @DeleteMapping({"/{id}", "/id/{id}"})
     public ResponseEntity<Void> deleteDivision(@PathVariable Long id) {
         divisionService.deleteDivision(id);
