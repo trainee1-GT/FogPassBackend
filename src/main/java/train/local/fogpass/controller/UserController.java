@@ -58,7 +58,7 @@ public class UserController {
     }
 
     // Update User
-    @PutMapping("/{id}")
+    @PutMapping("id/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequest request
