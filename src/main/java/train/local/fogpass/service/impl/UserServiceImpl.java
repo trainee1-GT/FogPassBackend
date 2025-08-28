@@ -106,19 +106,49 @@ public class UserServiceImpl implements UserService {
         if (updateRequest.getActive() != null) targetUser.setActive(updateRequest.getActive());
         if (updateRequest.getMobNo() != null) targetUser.setMobNo(updateRequest.getMobNo());
 
-        if (updateRequest.getRoles() != null && !updateRequest.getRoles().isEmpty()) {
-            Set<UserAccessScope> newScopes = updateRequest.getRoles().stream().map(r -> {
-                Role role = roleRepository.findByName(r.getRoleName())
-                        .orElseThrow(() -> new BadRequestException("Role not found: " + r.getRoleName()));
-                UserAccessScope s = new UserAccessScope();
-                s.setUser(targetUser);
-                s.setRole(role);
-                s.setZoneId(r.getZoneId());
-                s.setDivisionId(r.getDivisionId());
-                s.setSectionId(r.getSectionId());
-                return s;
-            }).collect(Collectors.toSet());
-            targetUser.setAccessScopes(newScopes);
+        if (updateRequest.getRoles() != null) {
+            // Replace roles safely: mutate the managed collection to avoid orphan deletion issues
+            Set<UserAccessScope> currentScopes = targetUser.getAccessScopes();
+            currentScopes.clear(); // orphanRemoval=true will delete old entries
+
+            if (!updateRequest.getRoles().isEmpty()) {
+                Set<UserAccessScope> newScopes = updateRequest.getRoles().stream().map(r -> {
+                    Role role = roleRepository.findByName(r.getRoleName())
+                            .orElseThrow(() -> new BadRequestException("Role not found: " + r.getRoleName()));
+
+                    // Scope validation by role
+                    String rn = role.getName();
+                    if (RoleConstants.SUPER_ADMIN.equals(rn)) {
+                        UserAccessScope s = new UserAccessScope();
+                        s.setUser(targetUser);
+                        s.setRole(role);
+                        s.setZoneId(null);
+                        s.setDivisionId(null);
+                        s.setSectionId(null);
+                        return s;
+                    }
+                    if (RoleConstants.ADMIN.equals(rn)) {
+                        if (r.getDivisionId() == null) {
+                            throw new BadRequestException("ADMIN role requires divisionId");
+                        }
+                    }
+                    if (RoleConstants.LOCO_PILOT.equals(rn)) {
+                        if (r.getSectionId() == null) {
+                            throw new BadRequestException("LOCO_PILOT role requires sectionId");
+                        }
+                    }
+
+                    UserAccessScope s = new UserAccessScope();
+                    s.setUser(targetUser);
+                    s.setRole(role);
+                    s.setZoneId(r.getZoneId());
+                    s.setDivisionId(r.getDivisionId());
+                    s.setSectionId(r.getSectionId());
+                    return s;
+                }).collect(Collectors.toSet());
+
+                currentScopes.addAll(newScopes);
+            }
         }
 
         User saved = userRepository.save(targetUser);

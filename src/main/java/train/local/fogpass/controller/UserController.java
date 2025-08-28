@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import train.local.fogpass.dto.request.AssignRolesRequest;
+import train.local.fogpass.dto.request.RoleAssignmentDto;
 import train.local.fogpass.dto.request.UserCreateRequest;
 import train.local.fogpass.dto.request.UserUpdateRequest;
 import train.local.fogpass.dto.response.ApiResponse;
@@ -65,6 +67,18 @@ public class UserController {
     ) {
         return ResponseEntity.ok(new ApiResponse<>(true, "User updated successfully",
                 userService.updateUser(id, request)));
+    }
+
+    // Replace roles for a user (assign via POST body)
+    @PostMapping("/{id}/roles")
+    public ResponseEntity<ApiResponse<UserResponse>> assignRoles(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignRolesRequest request
+    ) {
+        UserUpdateRequest update = new UserUpdateRequest();
+        update.setRoles(request.getRoles()); // replace existing roles
+        UserResponse updated = userService.updateUser(id, update);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Roles updated successfully", updated));
     }
 
     // Delete User (SUPER_ADMIN only)
