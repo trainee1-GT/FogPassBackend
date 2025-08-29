@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @train.local.fogpass.audit.Auditable(action = train.local.fogpass.audit.AuditAction.CREATE, entityType = "User")
     public UserResponse createUser(UserCreateRequest req) {
         if (userRepository.existsByUsername(req.getUsername())) {
             throw new BadRequestException("Username already exists");
@@ -85,6 +86,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @train.local.fogpass.audit.Auditable(action = train.local.fogpass.audit.AuditAction.UPDATE, entityType = "User")
     public UserResponse updateUser(Long targetUserId, UserUpdateRequest updateRequest) {
         UserPrincipal adminPrincipal = SecurityUtil.getCurrentUserPrincipal()
                 .orElseThrow(() -> new AccessDeniedException("Unauthenticated"));
@@ -175,6 +177,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
+    @train.local.fogpass.audit.Auditable(action = train.local.fogpass.audit.AuditAction.READ, entityType = "User")
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
@@ -260,6 +263,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    @train.local.fogpass.audit.Auditable(action = train.local.fogpass.audit.AuditAction.DELETE, entityType = "User")
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);

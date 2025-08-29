@@ -46,6 +46,76 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateResourceException(
+            DuplicateResourceException ex, WebRequest request) {
+        log.error("Duplicate resource: {}", ex.getMessage());
+
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            ex.getMessage(),
+            null
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(SectionNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleSectionNotFoundException(
+            SectionNotFoundException ex, WebRequest request) {
+        log.error("Section not found: {}", ex.getMessage());
+
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                ex.getMessage(),
+                null
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateSectionException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateSectionException(
+            DuplicateSectionException ex, WebRequest request) {
+        log.error("Duplicate section: {}", ex.getMessage());
+
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                ex.getMessage(),
+                null
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRoleNotFoundException(
+            RoleNotFoundException ex, WebRequest request) {
+        log.error("Role not found: {}", ex.getMessage());
+
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            ex.getMessage(),
+            null
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateRoleException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateRoleException(
+            DuplicateRoleException ex, WebRequest request) {
+        log.error("Duplicate role: {}", ex.getMessage());
+
+        ApiResponse<Object> response = new ApiResponse<>(
+            false,
+            ex.getMessage(),
+            null
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Object>> handleAccessDeniedException(
             AccessDeniedException ex, WebRequest request) {

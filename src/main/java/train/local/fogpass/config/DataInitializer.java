@@ -62,6 +62,9 @@ public class DataInitializer implements CommandLineRunner {
         createRoleIfNotExists("SUPER_ADMIN", "Super Administrator with full system access");
         createRoleIfNotExists("ADMIN", "Administrator with limited scope access");
         createRoleIfNotExists("LOCO_PILOT", "Locomotive Pilot with operational access");
+        // Granular admin roles for hierarchical access control
+        createRoleIfNotExists("ZONE_ADMIN", "Zone-scoped administrator with access limited to assigned zone(s)");
+        createRoleIfNotExists("DIVISION_ADMIN", "Division-scoped administrator with access limited to assigned division(s)");
         
         log.info("System roles initialization completed.");
     }
