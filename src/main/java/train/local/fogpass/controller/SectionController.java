@@ -62,6 +62,15 @@ public class SectionController {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
+    // Update a section (full update)
+    @PutMapping(value = {"/{id}", "/id/{id}"}, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Section> updateSection(@PathVariable Long id, @Valid @RequestBody Section section) {
+        // Ensure path variable is authoritative
+        section.setId(id);
+        Section updated = sectionService.saveSection(section);
+        return ResponseEntity.ok(updated);
+    }
+
     // Delete a section
     @DeleteMapping({"/{id}", "/id/{id}"})
     public ResponseEntity<Void> deleteSection(@PathVariable Long id) {
