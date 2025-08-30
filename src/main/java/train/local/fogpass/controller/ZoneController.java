@@ -26,7 +26,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/master-data/zones")
+@RequestMapping("/api/masterdata/zones")
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('SUPER_ADMIN')")
 @Tag(name = "Zone Management", description = "APIs for managing railway zones")

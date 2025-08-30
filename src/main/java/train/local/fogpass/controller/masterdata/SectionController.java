@@ -22,7 +22,6 @@ public class SectionController {
     private final SectionService sectionService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ADMIN')")
     public ResponseEntity<SectionResponse> createSection(@Valid @RequestBody SectionCreateRequest request) {
         SectionResponse response = sectionService.createSection(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);

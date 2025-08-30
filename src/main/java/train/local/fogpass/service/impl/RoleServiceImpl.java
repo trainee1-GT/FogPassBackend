@@ -79,7 +79,8 @@ public class RoleServiceImpl implements RoleService {
 
         String name = role.getName();
         if (RoleConstants.SUPER_ADMIN.equalsIgnoreCase(name)
-                || RoleConstants.ADMIN.equalsIgnoreCase(name)
+                || RoleConstants.ZONE_ADMIN.equalsIgnoreCase(name)
+                || RoleConstants.DIVISION_ADMIN.equalsIgnoreCase(name)
                 || RoleConstants.LOCO_PILOT.equalsIgnoreCase(name)) {
             throw new IllegalArgumentException("Cannot change status of core system role: " + name);
         }
