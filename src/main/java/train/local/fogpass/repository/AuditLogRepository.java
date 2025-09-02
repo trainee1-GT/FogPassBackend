@@ -2,8 +2,8 @@ package train.local.fogpass.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import train.local.fogpass.entity.Landmark;
+import train.local.fogpass.entity.AuditLog;
 
 @Repository
-public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
+public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 }

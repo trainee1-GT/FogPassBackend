@@ -1,0 +1,18 @@
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+file-storage:
+  landmarks-path: "D:\\Landmarks_Files"
+
+bulk-upload:
+  max-rows: 10000
+  max-concurrent-jobs: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
