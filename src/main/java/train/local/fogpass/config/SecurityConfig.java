@@ -56,11 +56,11 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**", "/").permitAll()
-
+                        // Temporarily open all /api/** for testing (Angular integration)
+                        .requestMatchers("/api/**", "/").permitAll()
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
                 )
