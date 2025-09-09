@@ -1,6 +1,7 @@
 package train.local.fogpass.dto.bulkupload;
 
 import java.util.UUID;
+import train.local.fogpass.dto.bulkupload.JobStatus;
 
 public class BulkUploadResponse {
 

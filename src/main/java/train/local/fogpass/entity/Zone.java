@@ -29,11 +29,11 @@ public class Zone {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "zone_id") // Explicit column name for clarity
+    @Column(name = "id") // map to existing DB PK column
     @JsonAlias({"id", "zoneId"}) // accept both keys from JSON
     private Long zoneId;
 
-    @Column(name = "zone_name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String zonename;
 
     // Auditing fields
@@ -44,7 +44,7 @@ public class Zone {
 
     @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY)
     @CreatedDate
-    @Column(name = "created_date", updatable = false, nullable = false)
+    @Column(name = "created_date", updatable = false, nullable = true)
     private Instant createdDate;
 
     @com.fasterxml.jackson.annotation.JsonProperty(access = com.fasterxml.jackson.annotation.JsonProperty.Access.READ_ONLY)

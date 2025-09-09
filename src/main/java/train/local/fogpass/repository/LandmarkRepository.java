@@ -6,4 +6,5 @@ import train.local.fogpass.entity.Landmark;
 
 @Repository
 public interface LandmarkRepository extends JpaRepository<Landmark, Long> {
+    boolean existsByRoute_IdAndSequenceOrder(Long routeId, Integer sequenceOrder);
 }

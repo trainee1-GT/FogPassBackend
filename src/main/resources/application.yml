@@ -5,11 +5,26 @@ spring:
       max-request-size: 50MB
 
 file-storage:
-  landmarks-path: "D:\\Landmarks_Files"
+  root: "D:/Upload_Files_to_Server"
+  uploads: "${file-storage.root}/uploads"
+  processed: "${file-storage.root}/processed"
+  errors: "${file-storage.root}/errors"
+  archive: "${file-storage.root}/archive"
+#  landmarks-path: "D:\\Landmarks_Files"
 
 bulk-upload:
   max-rows: 10000
   max-concurrent-jobs: 3
+
+data-lifecycle:
+  retention:
+    default:
+      archive-after-days: 365
+      purge-after-days: 2555
+    per-asset-type:
+      AUDIO_FILE:
+        archive-after-days: 180
+        purge-after-days: 730
 
 management:
   endpoints:

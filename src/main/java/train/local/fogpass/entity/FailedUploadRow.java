@@ -9,6 +9,8 @@ import java.util.UUID;
 })
 public class FailedUploadRow {
 
+    public enum ErrorCategory { SCHEMA_ERROR, DOMAIN_ERROR, DUPLICATE_ERROR, IO_ERROR }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +28,10 @@ public class FailedUploadRow {
     @Column(name = "error_message", length = 1000)
     private String errorMessage;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "error_category", length = 50)
+    private ErrorCategory errorCategory;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public UUID getJobId() { return jobId; }
@@ -36,4 +42,6 @@ public class FailedUploadRow {
     public void setRowData(String rowData) { this.rowData = rowData; }
     public String getErrorMessage() { return errorMessage; }
     public void setErrorMessage(String errorMessage) { this.errorMessage = errorMessage; }
+    public ErrorCategory getErrorCategory() { return errorCategory; }
+    public void setErrorCategory(ErrorCategory errorCategory) { this.errorCategory = errorCategory; }
 }

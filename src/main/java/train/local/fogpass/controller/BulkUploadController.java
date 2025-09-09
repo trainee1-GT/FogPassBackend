@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/masterdata/landmarks")
-@PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN','SUPER_ADMIN','ZONE_ADMIN','DIVISION_ADMIN')")
 public class BulkUploadController {
 
     private final BulkUploadService bulkUploadService;

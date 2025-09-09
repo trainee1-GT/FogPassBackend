@@ -15,13 +15,23 @@ public class ApplicationConfig {
     private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 
     @Bean
-    public Object ensureLandmarksDir(FileStorageProperties props) {
+    public Object ensureStorageBuckets(FileStorageProperties props) {
         try {
-            Path base = Path.of(props.getLandmarksPath());
-            Files.createDirectories(base);
-            log.info("Landmarks storage path is set to: {} (exists={})", base.toAbsolutePath(), Files.exists(base));
+            // Ensure all configured buckets exist
+            Path uploads = Path.of(props.getUploads());
+            Path processed = Path.of(props.getProcessed());
+            Path errors = Path.of(props.getErrors());
+            Path archive = Path.of(props.getArchive());
+
+            Files.createDirectories(uploads);
+            Files.createDirectories(processed);
+            Files.createDirectories(errors);
+            Files.createDirectories(archive);
+
+            log.info("Storage buckets ready: uploads={}, processed={}, errors={}, archive={}",
+                    uploads.toAbsolutePath(), processed.toAbsolutePath(), errors.toAbsolutePath(), archive.toAbsolutePath());
         } catch (Exception e) {
-            log.error("Failed to prepare landmarks storage directory: {}", props.getLandmarksPath(), e);
+            log.error("Failed to prepare storage buckets using file-storage.* properties", e);
         }
         return new Object();
     }

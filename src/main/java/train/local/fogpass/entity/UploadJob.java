@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.UUID;
 import train.local.fogpass.dto.bulkupload.JobStatus;
-import train.local.fogpass.entity.LandmarkFile;
 
 @Entity
 @Table(name = "upload_jobs", indexes = {
@@ -36,9 +35,13 @@ public class UploadJob {
     @Column(name = "result_json", columnDefinition = "json")
     private String resultJson;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "landmark_file_id", referencedColumnName = "id")
-    private LandmarkFile landmarkFile;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "file_asset_id")
+    private FileAsset fileAsset;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "batch_id")
+    private BatchUploadJob batch;
 
     public UUID getJobId() { return jobId; }
     public void setJobId(UUID jobId) { this.jobId = jobId; }
@@ -54,6 +57,8 @@ public class UploadJob {
     public void setUploadTimestamp(Instant uploadTimestamp) { this.uploadTimestamp = uploadTimestamp; }
     public String getResultJson() { return resultJson; }
     public void setResultJson(String resultJson) { this.resultJson = resultJson; }
-    public LandmarkFile getLandmarkFile() { return landmarkFile; }
-    public void setLandmarkFile(LandmarkFile landmarkFile) { this.landmarkFile = landmarkFile; }
+    public FileAsset getFileAsset() { return fileAsset; }
+    public void setFileAsset(FileAsset fileAsset) { this.fileAsset = fileAsset; }
+    public BatchUploadJob getBatch() { return batch; }
+    public void setBatch(BatchUploadJob batch) { this.batch = batch; }
 }

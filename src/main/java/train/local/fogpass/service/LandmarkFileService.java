@@ -37,12 +37,12 @@ public class LandmarkFileService {
         Route route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Route not found: " + routeId));
 
-        String storageFileName = UUID.randomUUID() + getExtension(file.getOriginalFilename());
-        String fullPath = fileStorageService.storeFile(file, routeId, storageFileName);
+        String originalName = file.getOriginalFilename();
+        String fullPath = fileStorageService.storeFileToZonesForRoute(file, routeId, originalName);
 
         LandmarkFile lf = new LandmarkFile(
-                file.getOriginalFilename(),
-                storageFileName,
+                originalName,
+                originalName,
                 fullPath,
                 file.getContentType(),
                 file.getSize(),
